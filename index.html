@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DelayGuard – Smart Delivery Delay Predictor</title>
+  <meta name="description"
+    content="AI-powered delivery delay probability and ETA estimation dashboard. Predict delivery delays before they happen.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dark-theme">
+  <!-- Background Glow Orbs -->
+  <div class="bg-orb orb-primary"></div>
+  <div class="bg-orb orb-secondary"></div>
+  <div class="bg-grid-pattern"></div>
+
+  <div class="app-container">
+    <!-- Top Header / Navigation -->
+    <header class="navbar">
+      <div class="brand">
+        <div class="brand-icon-wrapper">
+          <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            <path d="M12 8v4" />
+            <path d="M12 16h.01" />
+          </svg>
+          <span class="brand-pulse"></span>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">Delay<span class="highlight">Guard</span></span>
+          <span class="brand-tag">v2.4 Live AI</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="demoScenarioBtn" class="btn btn-secondary demo-btn" title="Populate realistic hackathon scenario">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+          </svg>
+          <span>Demo Scenario</span>
+          <span class="badge-pill">High Risk</span>
+        </button>
+        <button id="soundToggleBtn" class="btn btn-icon" title="Toggle Sound Feedback" aria-label="Toggle sound">
+          <svg id="soundIcon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Hero Banner -->
+    <section class="hero-section">
+      <div class="hero-badge">
+        <span class="pulse-dot"></span>
+        Predictive Logistics Intelligence
+      </div>
+      <h1 class="hero-title">Smart Delivery Delay Predictor</h1>
+      <p class="hero-subtitle">Predict delivery delays before they happen with real-time risk factor modeling</p>
+    </section>
+
+    <!-- Preset Scenarios Quick Bar -->
+    <div class="presets-container">
+      <span class="presets-label">Quick Presets:</span>
+      <div class="preset-chips">
+        <button class="preset-chip" data-preset="storm">⛈️ Stormy Express</button>
+        <button class="preset-chip" data-preset="rush">🚗 Rush Hour Standard</button>
+        <button class="preset-chip" data-preset="clear">☀️ Smooth Local Clear</button>
+        <button class="preset-chip" data-preset="economy">📦 Long Haul Economy</button>
+      </div>
+    </div>
+
+    <!-- Main Grid Dashboard Layout -->
+    <main class="dashboard-grid">
+
+      <!-- LEFT COLUMN: Input Details Form -->
+      <section class="card input-card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+            </div>
+            <div>
+              <h2 class="card-title">Delivery Details</h2>
+              <p class="card-subtitle">Configure environmental & operational parameters</p>
+            </div>
+          </div>
+          <button id="resetFormBtn" class="btn btn-ghost btn-sm" title="Reset all fields to defaults">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+              <path d="M3 3v5h5"></path>
+            </svg>
+            Reset
+          </button>
+        </div>
+
+        <form id="delayForm" class="form-body" onsubmit="return false;">
+
+          <!-- 1. Distance -->
+          <div class="form-group">
+            <div class="label-row">
+              <label for="distanceInput" class="form-label">
+                <span class="label-icon">📍</span>
+                1. Delivery Distance
+              </label>
+              <span class="distance-badge" id="distanceDisplay">18 km</span>
+            </div>
+            <div class="distance-control-wrap">
+              <input type="range" id="distanceSlider" min="1" max="60" value="18" step="1" class="slider-input">
+              <div class="number-input-wrap">
+                <input type="number" id="distanceInput" min="1" max="150" value="18" class="form-control"
+                  placeholder="18">
+                <span class="input-unit">km</span>
+              </div>
+            </div>
+            <div class="input-hint">
+              <span>Short (&lt;5km)</span>
+              <span>Medium (5-15km)</span>
+              <span>Long (15-30km)</span>
+              <span>Very Long (&gt;30km)</span>
+            </div>
+          </div>
+
+          <!-- 2. Traffic Level -->
+          <div class="form-group">
+            <label class="form-label">
+              <span class="label-icon">🚦</span>
+              2. Traffic Level
+            </label>
+            <div class="segmented-control" role="radiogroup" aria-label="Traffic Level">
+              <label class="segment-option">
+                <input type="radio" name="traffic" value="low">
+                <span class="segment-content">
+                  <span class="traffic-dot low"></span>
+                  <span class="opt-text">Low</span>
+                  <span class="opt-score">+5</span>
+                </span>
+              </label>
+              <label class="segment-option">
+                <input type="radio" name="traffic" value="medium">
+                <span class="segment-content">
+                  <span class="traffic-dot med"></span>
+                  <span class="opt-text">Medium</span>
+                  <span class="opt-score">+15</span>
+                </span>
+              </label>
+              <label class="segment-option">
+                <input type="radio" name="traffic" value="high" checked>
+                <span class="segment-content">
+                  <span class="traffic-dot high"></span>
+                  <span class="opt-text">High</span>
+                  <span class="opt-score">+30</span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 3. Weather Conditions -->
+          <div class="form-group">
+            <label class="form-label">
+              <span class="label-icon">⛅</span>
+              3. Weather Condition
+            </label>
+            <div class="card-grid-select weather-select" role="radiogroup" aria-label="Weather">
+              <label class="grid-card-option">
+                <input type="radio" name="weather" value="clear">
+                <span class="grid-card-content">
+                  <span class="opt-emoji">☀️</span>
+                  <span class="opt-title">Clear</span>
+                  <span class="opt-score-sub">+0 pts</span>
+                </span>
+              </label>
+              <label class="grid-card-option">
+                <input type="radio" name="weather" value="cloudy">
+                <span class="grid-card-content">
+                  <span class="opt-emoji">⛅</span>
+                  <span class="opt-title">Cloudy</span>
+                  <span class="opt-score-sub">+5 pts</span>
+                </span>
+              </label>
+              <label class="grid-card-option">
+                <input type="radio" name="weather" value="rain" checked>
+                <span class="grid-card-content">
+                  <span class="opt-emoji">🌧️</span>
+                  <span class="opt-title">Rain</span>
+                  <span class="opt-score-sub">+20 pts</span>
+                </span>
+              </label>
+              <label class="grid-card-option">
+                <input type="radio" name="weather" value="storm">
+                <span class="grid-card-content">
+                  <span class="opt-emoji">⛈️</span>
+                  <span class="opt-title">Storm</span>
+                  <span class="opt-score-sub">+35 pts</span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 4. Courier Workload -->
+          <div class="form-group">
+            <label class="form-label">
+              <span class="label-icon">🛵</span>
+              4. Courier Workload
+            </label>
+            <div class="segmented-control" role="radiogroup" aria-label="Courier Workload">
+              <label class="segment-option">
+                <input type="radio" name="courier" value="low">
+                <span class="segment-content">
+                  <span class="workload-bars low"><span></span><span></span><span></span></span>
+                  <span class="opt-text">Low</span>
+                  <span class="opt-score">+5</span>
+                </span>
+              </label>
+              <label class="segment-option">
+                <input type="radio" name="courier" value="medium">
+                <span class="segment-content">
+                  <span class="workload-bars med"><span></span><span></span><span></span></span>
+                  <span class="opt-text">Medium</span>
+                  <span class="opt-score">+15</span>
+                </span>
+              </label>
+              <label class="segment-option">
+                <input type="radio" name="courier" value="high" checked>
+                <span class="segment-content">
+                  <span class="workload-bars high"><span></span><span></span><span></span></span>
+                  <span class="opt-text">High</span>
+                  <span class="opt-score">+25</span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 5. Delivery Type -->
+          <div class="form-group">
+            <label class="form-label">
+              <span class="label-icon">🚀</span>
+              5. Delivery Service Tier
+            </label>
+            <div class="tier-select" role="radiogroup" aria-label="Delivery Type">
+              <label class="tier-option">
+                <input type="radio" name="deliveryType" value="express">
+                <span class="tier-content">
+                  <div class="tier-info">
+                    <span class="tier-name">⚡ Express</span>
+                    <span class="tier-desc">Priority handling</span>
+                  </div>
+                  <span class="tier-badge discount">-10 pts</span>
+                </span>
+              </label>
+              <label class="tier-option">
+                <input type="radio" name="deliveryType" value="standard" checked>
+                <span class="tier-content">
+                  <div class="tier-info">
+                    <span class="tier-name">📦 Standard</span>
+                    <span class="tier-desc">Standard queue</span>
+                  </div>
+                  <span class="tier-badge neutral">0 pts</span>
+                </span>
+              </label>
+              <label class="tier-option">
+                <input type="radio" name="deliveryType" value="economy">
+                <span class="tier-content">
+                  <div class="tier-info">
+                    <span class="tier-name">🐢 Economy</span>
+                    <span class="tier-desc">Batched routing</span>
+                  </div>
+                  <span class="tier-badge penalty">+10 pts</span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 6. Current Delivery Status -->
+          <div class="form-group">
+            <label class="form-label">
+              <span class="label-icon">📡</span>
+              6. Current Delivery Status
+            </label>
+            <div class="status-grid" role="radiogroup" aria-label="Current Status">
+              <label class="status-option">
+                <input type="radio" name="status" value="processing">
+                <span class="status-content">
+                  <span class="status-icon">📋</span>
+                  <span class="status-name">Processing</span>
+                  <span class="status-pts">+5</span>
+                </span>
+              </label>
+              <label class="status-option">
+                <input type="radio" name="status" value="dispatched">
+                <span class="status-content">
+                  <span class="status-icon">🏷️</span>
+                  <span class="status-name">Dispatched</span>
+                  <span class="status-pts">+5</span>
+                </span>
+              </label>
+              <label class="status-option">
+                <input type="radio" name="status" value="in_transit">
+                <span class="status-content">
+                  <span class="status-icon">🚚</span>
+                  <span class="status-name">In Transit</span>
+                  <span class="status-pts">+10</span>
+                </span>
+              </label>
+              <label class="status-option">
+                <input type="radio" name="status" value="out_for_delivery" checked>
+                <span class="status-content">
+                  <span class="status-icon">🛵</span>
+                  <span class="status-name">Out for Delivery</span>
+                  <span class="status-pts">+15</span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="form-actions">
+            <button type="button" id="predictBtn" class="btn btn-primary btn-lg pulse-glow">
+              <span class="btn-shine"></span>
+              <span class="btn-icon-text">
+                <span class="magic-icon">🔮</span>
+                <span class="btn-label">Predict Delay</span>
+              </span>
+              <svg class="arrow-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+                stroke-width="2.5">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- RIGHT COLUMN: Results & Visualizations -->
+      <div class="results-column">
+
+        <!-- Main Prediction Card -->
+        <section class="card result-card" id="resultCard">
+          <div class="card-header borderless">
+            <div class="card-title-group">
+              <span class="live-pill" id="livePill">Live Prediction</span>
+              <h2 class="card-title" id="predictionHeaderTitle">Delay Assessment</h2>
+            </div>
+            <div class="timestamp-tag" id="predictionTimestamp">Awaiting Run</div>
+          </div>
+
+          <!-- Risk Level & Main Gauges Container -->
+          <div class="prediction-main-body">
+
+            <!-- Circular Gauge & Score Ring -->
+            <div class="gauge-container">
+              <div class="circular-progress-wrap">
+                <svg class="progress-ring" width="190" height="190" viewBox="0 0 190 190">
+                  <circle class="progress-ring-track" cx="95" cy="95" r="80" stroke-width="14"></circle>
+                  <circle id="progressRingBar" class="progress-ring-bar" cx="95" cy="95" r="80" stroke-width="14">
+                  </circle>
+                </svg>
+                <div class="gauge-inner-content">
+                  <div class="gauge-percentage-val">
+                    <span id="probNumber" class="count-num">82</span><span class="pct-sign">%</span>
+                  </div>
+                  <span class="gauge-label">Delay Probability</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Risk Overview & ETA Numbers -->
+            <div class="prediction-stats-block">
+              <!-- Big Risk Level Badge -->
+              <div id="riskLevelBadge" class="risk-badge risk-high">
+                <span class="risk-indicator-dot"></span>
+                <span id="riskLevelText" class="risk-title">HIGH DELAY RISK</span>
+              </div>
+
+              <!-- Estimated Delay Metric -->
+              <div class="stat-highlight-box">
+                <div class="stat-label">Estimated Delay</div>
+                <div class="stat-value-group">
+                  <span id="estimatedDelayMin" class="stat-number count-num">35</span>
+                  <span class="stat-unit">minutes</span>
+                </div>
+                <div class="stat-subtext" id="etaSubtext">Added to standard transit window</div>
+              </div>
+
+              <!-- Total Delay Score metric -->
+              <div class="mini-score-bar">
+                <div class="mini-score-labels">
+                  <span>Computed Delay Score</span>
+                  <span id="totalScoreVal" class="score-bold">110 pts</span>
+                </div>
+                <div class="score-track">
+                  <div id="scoreTrackFill" class="score-fill" style="width: 85%;"></div>
+                </div>
+                <div class="score-thresholds">
+                  <span>0 (Low)</span>
+                  <span>25</span>
+                  <span>50</span>
+                  <span>75</span>
+                  <span>145 (Max)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dynamic Explanation Box -->
+          <div class="explanation-box" id="explanationBox">
+            <div class="explanation-header">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              <span>Driver Impact Analysis</span>
+            </div>
+            <p id="explanationText" class="explanation-content">
+              Heavy traffic and rain are the main factors increasing the predicted delay.
+            </p>
+          </div>
+
+          <!-- Smart Recommendation Box -->
+          <div class="recommendation-card" id="recommendationCard">
+            <div class="rec-icon-wrap" id="recIconWrap">
+              <span id="recEmoji">⚠️</span>
+            </div>
+            <div class="rec-content">
+              <span class="rec-label">Smart Recommendation</span>
+              <p id="recommendationText" class="rec-text">
+                Expect a significant delay and monitor the delivery status closely.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Delay Factors Breakdown Card -->
+        <section class="card factors-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <div class="card-icon mini">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="20" x2="18" y2="10"></line>
+                  <line x1="12" y1="20" x2="12" y2="4"></line>
+                  <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+              </div>
+              <h3 class="card-title">Delay Factors Breakdown</h3>
+            </div>
+            <span class="factors-badge">Multi-Factor Scoring</span>
+          </div>
+
+          <div class="factors-list">
+
+            <!-- Traffic Factor -->
+            <div class="factor-item" id="factorTraffic">
+              <div class="factor-meta">
+                <div class="factor-name-group">
+                  <span class="factor-icon">🚦</span>
+                  <span class="factor-title">Traffic Contribution</span>
+                </div>
+                <div class="factor-val-group">
+                  <span id="trafficScoreLabel" class="factor-score-label">High (+30 pts)</span>
+                  <span id="trafficPctLabel" class="factor-pct">27%</span>
+                </div>
+              </div>
+              <div class="progress-bar-bg">
+                <div id="trafficBarFill" class="progress-bar-fill fill-traffic" style="width: 85%;"></div>
+              </div>
+            </div>
+
+            <!-- Weather Factor -->
+            <div class="factor-item" id="factorWeather">
+              <div class="factor-meta">
+                <div class="factor-name-group">
+                  <span class="factor-icon">🌧️</span>
+                  <span class="factor-title">Weather Impact</span>
+                </div>
+                <div class="factor-val-group">
+                  <span id="weatherScoreLabel" class="factor-score-label">Rain (+20 pts)</span>
+                  <span id="weatherPctLabel" class="factor-pct">18%</span>
+                </div>
+              </div>
+              <div class="progress-bar-bg">
+                <div id="weatherBarFill" class="progress-bar-fill fill-weather" style="width: 57%;"></div>
+              </div>
+            </div>
+
+            <!-- Courier Workload Factor -->
+            <div class="factor-item" id="factorCourier">
+              <div class="factor-meta">
+                <div class="factor-name-group">
+                  <span class="factor-icon">🛵</span>
+                  <span class="factor-title">Courier Workload</span>
+                </div>
+                <div class="factor-val-group">
+                  <span id="courierScoreLabel" class="factor-score-label">High (+25 pts)</span>
+                  <span id="courierPctLabel" class="factor-pct">23%</span>
+                </div>
+              </div>
+              <div class="progress-bar-bg">
+                <div id="courierBarFill" class="progress-bar-fill fill-courier" style="width: 71%;"></div>
+              </div>
+            </div>
+
+            <!-- Distance Factor -->
+            <div class="factor-item" id="factorDistance">
+              <div class="factor-meta">
+                <div class="factor-name-group">
+                  <span class="factor-icon">📍</span>
+                  <span class="factor-title">Distance Impact</span>
+                </div>
+                <div class="factor-val-group">
+                  <span id="distanceScoreLabel" class="factor-score-label">15–30 km (+20 pts)</span>
+                  <span id="distancePctLabel" class="factor-pct">18%</span>
+                </div>
+              </div>
+              <div class="progress-bar-bg">
+                <div id="distanceBarFill" class="progress-bar-fill fill-distance" style="width: 66%;"></div>
+              </div>
+            </div>
+
+            <!-- Modifiers Breakdown (Tier & Status) -->
+            <div class="factor-modifiers-row">
+              <div class="modifier-chip" id="tierModifierChip">
+                <span class="mod-label">Tier:</span>
+                <span id="modTierVal" class="mod-val">Standard (0 pts)</span>
+              </div>
+              <div class="modifier-chip" id="statusModifierChip">
+                <span class="mod-label">Status:</span>
+                <span id="modStatusVal" class="mod-val">Out for Delivery (+15 pts)</span>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Recent Predictions History Card -->
+        <section class="card history-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <div class="card-icon mini">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+              </div>
+              <div>
+                <h3 class="card-title">Recent Predictions</h3>
+                <p class="card-subtitle">Stored locally in browser session</p>
+              </div>
+            </div>
+            <button id="clearHistoryBtn" class="btn btn-ghost btn-xs text-muted" title="Clear saved predictions">
+              Clear All
+            </button>
+          </div>
+
+          <div id="historyList" class="history-list">
+            <!-- Dynamic items rendered via JS -->
+            <div class="empty-history-placeholder">
+              <span class="placeholder-icon">📋</span>
+              <p>No predictions yet. Click "Predict Delay" to save results.</p>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <div class="footer-content">
+        <div class="footer-left">
+          <span class="footer-logo">⚡ DelayGuard Prototype</span>
+          <span class="separator">•</span>
+          <span>Fast AI-Driven Logistics ETA Engine</span>
+        </div>
+        <div class="footer-right">
+          <span class="status-indicator-live">
+            <span class="status-dot"></span> System Operational
+          </span>
+          <span class="separator">•</span>
+          <span>Zero-Backend Client Edition</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
